@@ -16,6 +16,22 @@ pub fn day1_part1() -> i32 {
     return -1
 }
 
+pub fn day1_part2() -> i32 {
+    println!("{:?}", read());
+
+    for num1 in read().iter() {
+        for num2 in read().iter() {
+            for num3 in read().iter() {
+                if num1 + num2 + num3 == 2020 {
+                    println!("num1: {} num2: {}, num3: {}", num1, num2, num3);
+                    return num1*num2*num3
+                }
+            }
+        }
+    }
+
+    return -1
+}
 
 fn read() -> Vec<i32> {
     let br = BufReader::new(File::open("src/day1/input").expect("No such file"));
