@@ -39,18 +39,17 @@ fn is_valid2(line: String) -> bool {
     let last_occurrence = range.split("-").nth(1).expect("Must exist").parse().expect("Must be a number");
 
     let password = v[1];
-    
-    return char_equals(password.to_string(), first_occurrence, letter) && 
-        !char_equals(password.to_string(), last_occurrence, letter) ||
-        !char_equals(password.to_string(), first_occurrence, letter) && 
-        char_equals(password.to_string(), last_occurrence, letter) 
+
+    let first_matches = char_equals(password.to_string(), first_occurrence, letter);
+    let last_matches = char_equals(password.to_string(), last_occurrence, letter);
+    return first_matches && !last_matches || !first_matches && last_matches;
 }
 
 fn char_equals(password: String, index: usize, c: char) -> bool {
     if password.len() <= index {
-        return false;
+        false
     } else {
-        return password.chars().nth(index).expect("Must exist") == c;
+        password.chars().nth(index).expect("Must exist") == c
     }
 }
 
