@@ -34,7 +34,7 @@ pub fn day1_part2() -> i32 {
 }
 
 fn read() -> Vec<i32> {
-    let br = BufReader::new(File::open("src/day1/input").expect("No such file"));
+    let br = BufReader::new(File::open("data/day1/input").expect("No such file"));
     return br.lines()
         .map(|line| line.expect("sadf").trim().parse().expect("cannot parse line"))
         .collect();

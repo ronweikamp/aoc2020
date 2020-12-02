@@ -3,14 +3,14 @@ use std::io::{BufRead, BufReader};
 
 pub fn day2_part1() -> i32 {
 
-    let lines = read("src/day2/input".to_string());
+    let lines = read("data/day2/input".to_string());
     
     return lines.iter().filter(|line| is_valid(line.to_string())).count() as i32;
 }
 
 pub fn day2_part2() -> i32 {
 
-    let lines = read("src/day2/input".to_string());
+    let lines = read("data/day2/input".to_string());
     
     return lines.iter().filter(|line| is_valid2(line.to_string())).count() as i32;
 }
