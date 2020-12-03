@@ -1,5 +1,3 @@
-
-
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
@@ -79,8 +77,8 @@ impl Coord {
 
 #[derive(Debug)]
 enum GridType {
-    Square = 0,
-    Tree = 1,
+    Square,
+    Tree,
 }
 
 fn read_map(path: &str) -> Vec<Vec<GridType>> {
