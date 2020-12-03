@@ -58,12 +58,12 @@ fn char_equals(password: &str, index: usize, c: char) -> bool {
 
 fn line_to_tuple(line: &str) -> Option<(usize, usize, char, &str)> {
     let left = line.split(":").nth(0)?;
-    let password = line.split(":").nth(1).expect("Must exist");
-    let range = left.split(" ").nth(0).expect("Must exist");
-    let letter = left.split(":").nth(0).expect("Must exist").split(" ").nth(1).expect("Must exist").chars().nth(0).expect("exist");
+    let password = line.split(":").nth(1)?;
+    let range = left.split(" ").nth(0)?;
+    let letter = left.split(":").nth(0)?.split(" ").nth(1)?.chars().nth(0)?;
     
-    let first_occurrence = range.split("-").nth(0).expect("Must exist").parse().expect("Must be a number");
-    let last_occurrence = range.split("-").nth(1).expect("Must exist").parse().expect("Must be a number");
+    let first_occurrence = range.split("-").nth(0)?.parse().ok()?;
+    let last_occurrence = range.split("-").nth(1)?.parse().ok()?;
 
     return Some((first_occurrence, last_occurrence, letter, password));
 }
