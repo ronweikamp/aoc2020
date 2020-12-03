@@ -1,5 +1,6 @@
 pub mod day1;
 mod day2;
+pub mod day3;
 
 fn main() {
     println!("Hello, world!");
