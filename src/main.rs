@@ -3,6 +3,7 @@ mod day2;
 pub mod day3;
 pub mod utils;
 pub mod day4;
+pub mod day5;
 
 fn main() {
     println!("Hello, world!");
