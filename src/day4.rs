@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-use std::io::{BufRead, BufReader};
 use crate::utils::read;
 
 #[cfg(test)]
@@ -12,11 +10,12 @@ mod tests {
     }
     #[test]
     fn test_day4_part1() {
-        assert_eq!(day4_part1("data/day4/input"), 229);
+        assert_eq!(day4_part1("data/day4/input"), 230);
     }
 }
 
 pub fn day4_part1(path: &str) -> usize {
+    read_between_lines(path).for_each(|x| println!("{}", x));
     let map = read_between_lines(path);
     map.map(|line| Passport::new(&line))
         .filter(|p| p.is_valid())
@@ -105,6 +104,12 @@ impl Iterator for PasspordLineIterator {
                 return Some(x);
             }
         }
+
+        // last line
+        if x.len() > 0 {
+            return Some(x);
+        }
+
         return None;
     }
 }
