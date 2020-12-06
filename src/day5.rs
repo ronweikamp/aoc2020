@@ -19,6 +19,19 @@ mod tests {
         assert_eq!(max_seat_id, 818);
     }
 
+    #[test]
+    fn test_day5_part2() {
+
+        let mut seats = read("data/day5/input").map(|code| get_seat_id(&code) as i32).collect::<Vec<i32>>();
+        seats.sort();
+        
+        let my_seat = seats.iter().zip(seats.iter().skip(1))
+            .filter(|(a,b)| *b-*a == 2).find(|_| true).unwrap().0 + 1;
+        assert_eq!(my_seat, 559);
+    }
+
+
+
 
 }
 
