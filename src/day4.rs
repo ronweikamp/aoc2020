@@ -74,7 +74,6 @@ impl Passport {
     }
 
     fn is_valid2(&self) -> bool {
-        
 
         if self.is_valid() {
             byr_valid(&self.byr.as_ref().unwrap()) &&
