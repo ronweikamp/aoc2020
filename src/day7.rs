@@ -27,19 +27,18 @@ mod tests {
 pub fn day7_part1(path: &str) -> usize {
     let mut bag_graph = Graph::<&str, u32>::new();
 
-    let mut str_to_node = HashSet::<String>::new();
+    let mut node_names = HashSet::<String>::new();
 
     read(path).for_each(|l| {
         let (node, connections) = line_to_bags(&l);
         
-        str_to_node.insert(node.to_string());
+        node_names.insert(node.to_string());
         for c in connections {
-            str_to_node.insert(c);
+            node_names.insert(c);
         }
     }); 
 
-    let map: HashMap<String, NodeIndex> = str_to_node.iter().map(|s| (s.to_string(), bag_graph.add_node(s))).collect::<HashMap<String, NodeIndex>>();
-
+    let map: HashMap<String, NodeIndex> = node_names.iter().map(|s| (s.to_string(), bag_graph.add_node(s))).collect::<HashMap<String, NodeIndex>>();
 
     read(path).for_each(|l| {
         let (node, connections) = line_to_bags(&l);
@@ -47,11 +46,9 @@ pub fn day7_part1(path: &str) -> usize {
         
         for c in connections {
             
-            println!("conn {}", c);
             bag_graph.add_edge(*map.get(&c).unwrap(), *node_i.unwrap(), 1);
         }
     });
-
 
     println!("{:?}", bag_graph);
 
@@ -66,14 +63,12 @@ pub fn day7_part1(path: &str) -> usize {
         }
     }
 
-
     // to correct for the node itself and for
     count - 1
 }
 
 fn line_to_bags(line: &str) -> (String, HashSet<String>) {
 
-    println!("line {}", line);
 
     let first = line.split(',').nth(0).unwrap();
     
@@ -85,7 +80,6 @@ fn line_to_bags(line: &str) -> (String, HashSet<String>) {
         target.push_str(" ");
     });
 
-    println!("target {}", target);
 
     let mut first_content = String::new(); 
     first.split(' ').skip(5).take(2).for_each(|w| {
@@ -93,7 +87,6 @@ fn line_to_bags(line: &str) -> (String, HashSet<String>) {
         first_content.push_str(" ");
     });
 
-    println!("fc {}", first_content);
     connections.insert(first_content);
 
     for sub_seq_contents in line.split(',').skip(1) {
@@ -102,7 +95,6 @@ fn line_to_bags(line: &str) -> (String, HashSet<String>) {
             sc.push_str(w);
             sc.push_str(" ");
         });
-        println!("sc {}", sc);
         connections.insert(sc);
     }
 
