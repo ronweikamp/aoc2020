@@ -31,7 +31,7 @@ mod tests {
 
     #[test]
     fn test_day7_part2() {
-        assert_eq!(day7_part2("data/day7/input"), 126);
+        assert_eq!(day7_part2("data/day7/input"), 5956);
     }
 
 
@@ -77,10 +77,7 @@ pub fn day7_part1(path: &str) -> usize {
         }
     }
 
-    for n in bag_graph.edges(*start) {
-        println!("{:?}", n);
-    }
-    // to correct for the node itself and for
+    // to correct for the node itself
     count - 1
 }
 
@@ -111,26 +108,8 @@ pub fn day7_part2(path: &str) -> usize {
         }
     });
 
-    println!("{:?}", bag_graph);
-
     let start = map.get("shiny gold ").unwrap();
-    let mut dfs = Dfs::new(&bag_graph, *start);
-    let mut count = 0;
 
-    while let Some(visited) = dfs.next(&bag_graph) {
-        println!("v {}", visited.index());
-        if map.get("other bags. ").unwrap().index() != visited.index() {
-            count += 1;
-        }
-    }
-
-    bag_graph.neighbors_directed(*start, Outgoing).for_each(|n| {
-        let e = bag_graph.find_edge(*start, n).unwrap();
-        println!("{:?}", bag_graph.edge_weight(e).unwrap());
-        println!("{:?}", n);
-    });
-
-    // to correct for the node itself and for
     calc_num_bags(&bag_graph, *start)
 }
 
@@ -142,8 +121,6 @@ fn calc_num_bags(graph: &Graph::<&str, u32>, start: NodeIndex) -> usize {
         graph.neighbors_directed(start, Outgoing).map(|n| {
             let e = graph.find_edge(start, n).unwrap();
             let ew = graph.edge_weight(e).unwrap();
-            println!("ew {}", ew);
-            //let new_count = *ew as usize + count * *ew as usize;
 
             *ew as usize + *ew as usize * calc_num_bags(graph, n)
         }).sum()
