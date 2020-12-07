@@ -28,8 +28,8 @@ impl Iterator for EmptyLineIterator {
         
         while let Some(line) = self.wrapped.next() {
             if line.len() > 0 {
-                x.push_str(" ");
                 x.push_str(&line);
+                x.push_str(" ");
             } else {
                 return Some(x);
             }
