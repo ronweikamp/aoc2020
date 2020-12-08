@@ -6,18 +6,64 @@ mod tests {
 
     #[test]
     fn test_day8_part1_example() {
-        assert_eq!(day8_part1("data/day8/example"), 4);
+        assert_eq!(day8_part1("data/day8/example"), 5);
+    }
+
+    #[test]
+    fn test_day8_part1() {
+        assert_eq!(day8_part1("data/day8/input"), 1744);
     }
 
 }
 
 pub fn day8_part1(path: &str) -> usize {
     read_code(path).iter().for_each(|cl| println!("{:?}", cl));
-    3
+    let mut code = read_code(path);
+    start(&mut code)
 }
 
 fn read_code(path: &str) -> Vec<CodeLine> {
     read(path).map(|l| line_to_code(&l)).collect()
+}
+
+fn start(code: &mut Vec<CodeLine>) -> usize {
+    
+    let mut line_number = 0;
+    let mut acc = 0;
+
+    loop {
+        let result = execute_instr(acc, line_number, code);
+        match result {
+            Ok(r) => { 
+                println!("line nr {} was ok, acc {}", line_number, acc);
+                line_number = r.1;
+                acc = r.0;
+            }
+            Err(err_line) => {
+                println!("Error at nr {}", err_line);
+                break;
+            }
+        }
+    };
+    
+    acc
+}
+
+fn execute_instr(acc: usize, line_number: usize, mut code: &mut Vec<CodeLine>) -> Result<(usize, usize, &Vec<CodeLine>), usize> {
+
+    let codeline = &mut code[line_number];
+
+    match codeline.visited {
+        true => Err(line_number),
+        false => Ok({
+            codeline.visited();
+            match codeline.instruction.op {
+                Operation::NOP => (acc, line_number + 1, code),
+                Operation::ACC => ((acc as i32 + codeline.instruction.arg) as usize, line_number + 1, code),
+                Operation::JMP => (acc, (line_number as i32 + codeline.instruction.arg) as usize, code)
+            }
+        })
+    }
 }
 
 fn line_to_code(line: &str) -> CodeLine {
@@ -58,4 +104,10 @@ struct CodeLine {
     instruction: Instruction,
     //number: usize,
     visited: bool,
+}
+
+impl CodeLine {
+    fn visited(&mut self) {
+        self.visited = true;
+    }
 }
