@@ -14,19 +14,49 @@ mod tests {
         assert_eq!(day8_part1("data/day8/input"), 1744);
     }
 
+    #[test]
+    fn test_day8_part2_example() {
+        assert_eq!(day8_part2("data/day8/example"), 8);
+    }
+
+    #[test]
+    fn test_day8_part2() {
+        assert_eq!(day8_part2("data/day8/input"), 1174);
+    }
+
 }
 
 pub fn day8_part1(path: &str) -> usize {
     read_code(path).iter().for_each(|cl| println!("{:?}", cl));
     let mut code = read_code(path);
-    start(&mut code)
+    start(&mut code).err().unwrap()
+}
+
+pub fn day8_part2(path: &str) -> usize {
+    let code = read_code(path);
+
+    for i in 0..code.len() {
+        let mut code_copy = read_code(path);
+        code_copy[i].try_repair();
+        match start(&mut code_copy) {
+            Ok(acc) => {
+                println!("Repair at {} was succesful!, acc {}", i, acc);
+                return acc;
+            },
+            Err(acc) => {
+                println!("repair of {} was not succesful, acc {}", i, acc);
+            }
+        }
+    }
+
+    1
 }
 
 fn read_code(path: &str) -> Vec<CodeLine> {
     read(path).map(|l| line_to_code(&l)).collect()
 }
 
-fn start(code: &mut Vec<CodeLine>) -> usize {
+fn start(code: &mut Vec<CodeLine>) -> Result<usize, usize> {
     
     let mut line_number = 0;
     let mut acc = 0;
@@ -38,15 +68,17 @@ fn start(code: &mut Vec<CodeLine>) -> usize {
                 println!("line nr {} was ok, acc {}", line_number, acc);
                 line_number = r.1;
                 acc = r.0;
+                if line_number == code.len() {
+                    println!("terminating!");
+                    return Ok(acc);
+                }
             }
             Err(err_line) => {
                 println!("Error at nr {}", err_line);
-                break;
+                return Err(acc);
             }
         }
-    };
-    
-    acc
+    }
 }
 
 fn execute_instr(acc: usize, line_number: usize, mut code: &mut Vec<CodeLine>) -> Result<(usize, usize, &Vec<CodeLine>), usize> {
@@ -109,5 +141,23 @@ struct CodeLine {
 impl CodeLine {
     fn visited(&mut self) {
         self.visited = true;
+    }
+
+    fn try_repair(&mut self) {
+        match self.instruction.op {
+            Operation::JMP => {
+                self.instruction = Instruction { 
+                    op: Operation::NOP,
+                    arg: self.instruction.arg,
+                };
+            },
+            Operation::NOP => {
+                self.instruction = Instruction {
+                    op: Operation::JMP,
+                    arg: self.instruction.arg,
+                };
+            },
+            _ => {}// noop
+        }
     }
 }
