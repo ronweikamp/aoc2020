@@ -36,9 +36,9 @@ pub fn day8_part2(path: &str) -> usize {
     let code = read_code(path);
 
     for i in 0..code.len() {
-        let mut code_copy = read_code(path);
+        let code_copy = &mut code.to_vec();
         code_copy[i].try_repair();
-        match start(&mut code_copy) {
+        match start(code_copy) {
             Ok(acc) => {
                 println!("Repair at {} was successful!, acc {}", i, acc);
                 return acc;
@@ -118,20 +118,20 @@ fn line_to_code(line: &str) -> CodeLine {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Operation {
     NOP,
     ACC,
     JMP,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Instruction {
     op: Operation,
     arg: i32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct CodeLine {
     instruction: Instruction,
     //number: usize,
