@@ -40,11 +40,11 @@ pub fn day8_part2(path: &str) -> usize {
         code_copy[i].try_repair();
         match start(&mut code_copy) {
             Ok(acc) => {
-                println!("Repair at {} was succesful!, acc {}", i, acc);
+                println!("Repair at {} was successful!, acc {}", i, acc);
                 return acc;
             },
             Err(acc) => {
-                println!("repair of {} was not succesful, acc {}", i, acc);
+                println!("repair of {} was not successful, acc {}", i, acc);
             }
         }
     }
@@ -81,7 +81,7 @@ fn start(code: &mut Vec<CodeLine>) -> Result<usize, usize> {
     }
 }
 
-fn execute_instr(acc: usize, line_number: usize, mut code: &mut Vec<CodeLine>) -> Result<(usize, usize, &Vec<CodeLine>), usize> {
+fn execute_instr(acc: usize, line_number: usize, code: &mut Vec<CodeLine>) -> Result<(usize, usize, &Vec<CodeLine>), usize> {
 
     let codeline = &mut code[line_number];
 
