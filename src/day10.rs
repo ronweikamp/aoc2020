@@ -88,6 +88,7 @@ pub fn day10_part2(path: &str) -> usize {
     nodes[0].count
 }
 
+// this works but is infeasible for large sets
 fn count_paths(jolt: usize, adapter_set: &HashSet<&usize>, max_adapter: usize) -> usize {
 
     //println!("{}", jolt);
