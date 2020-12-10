@@ -47,8 +47,6 @@ pub fn day9_part2(path: &str, preamble: usize) -> i64 {
     for i in 0..numbers.len() {
         for j in 2..(numbers.len() - i) {
 
-            //let v: Vec<&i64> = numbers.iter().skip(i).take(j).collect();
-            //println!("{:?}", v);
             let s = numbers.iter().skip(i).take(j).sum::<i64>();
 
             if s == invalid_number {
