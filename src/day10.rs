@@ -72,45 +72,20 @@ pub fn day10_part2(path: &str) -> usize {
 
     let mut jolts  = read_numbers(path);
     jolts.push(0);
-    let adapter_set: HashSet<usize> = jolts.iter().map(|i| *i).collect::<HashSet<usize>>();
-
     jolts.sort();
     jolts.reverse();
 
     let max = jolts.iter().max().unwrap();
 
-    //jolts.iter().for_each(|i| nodes[&i] = Node { count: 0 });
-    let mut nodes: Vec<Node> = (0..*max + 1).map(|_| Node {count: 0}).collect();
+    let mut nodes: Vec<Node> = (0..*max + 4).map(|_| Node {count: 0}).collect();
 
-    //let sink = jolts.iter().max().unwrap();
     nodes[*max].count = 1;
 
     for j in &jolts[1..] {
-        let n1 = if adapter_set.contains(&(j + 1)) {
-            nodes[j+1].count
-        } else {
-            0
-        };
-        let n2 = if adapter_set.contains(&(j + 2)) {
-            nodes[j+2].count
-        } else {
-            0
-        };
-        let n3 = if adapter_set.contains(&(j + 3)) {
-            nodes[j+3].count
-        } else {
-            0
-        };
-
-        nodes[*j].count = n1 + n2 + n3;
-
+        nodes[*j].count = nodes[j+1].count + nodes[j+2].count + nodes[j+3].count;
     }
     
     nodes[0].count
-    //let max_adapter = jolts.iter().max().unwrap();
-
-    //count_paths(0, &adapter_set, *max_adapter)
-    
 }
 
 fn count_paths(jolt: usize, adapter_set: &HashSet<&usize>, max_adapter: usize) -> usize {
