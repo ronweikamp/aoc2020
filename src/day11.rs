@@ -153,6 +153,14 @@ impl Grid {
             }).count()
     }
 
+    fn get_occupied_neighbours2(&self, i: usize, j: usize) -> usize {
+        self.get_neighbours(i, j).iter()
+            .filter(|n| match n {
+                GridPoint::Seat(occupied) => *occupied,
+                _ => false,
+            }).count()
+    }
+
 
     fn get_neighbours(&self, m: usize, n: usize) -> Vec<&GridPoint> {
 
@@ -165,16 +173,20 @@ impl Grid {
 
         let mut neighbours = Vec::<&GridPoint>::new();
 
-        let width = self.points[0].len() as isize;
-        let length = self.points.len() as isize;
-
-        for (k,l) in &potential_neighbours {
-            if !(k < &0 || k >= &length || l < &0 || l >= &width) {
+        for (k,l) in potential_neighbours.iter() {
+            if self.coord_in_grid(*k as i32, *l as i32) {
                 neighbours.push(&self.points[*k as usize][*l as usize]);
             }
         }
 
         neighbours
+    }
+
+    fn coord_in_grid(&self, i: i32, j: i32) -> bool {
+        let width = self.points[0].len() as i32;
+        let length = self.points.len() as i32;
+
+        !(i < 0 || i >= length || j < 0 || j >= width)
     }
 
     fn count_occupied(&self) -> usize {
