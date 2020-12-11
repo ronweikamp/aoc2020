@@ -15,5 +15,4 @@ pub mod day11;
 
 fn main() {
     println!("Hello, world!");
-    day11_part2("data/day11/example1");
 }
