@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-use std::collections::HashSet;
 use crate::utils::read;
 
 #[cfg(test)]
@@ -30,7 +28,6 @@ pub fn day11_part1(path: &str) -> usize {
     let mut grid = read_grid(path);
 
     loop {
-
         let next_grid = grid.next_1(|g, i, j| g.get_occupied_neighbours(i, j), 4);
         if grid == next_grid {
             break;
@@ -38,13 +35,8 @@ pub fn day11_part1(path: &str) -> usize {
 
         grid = next_grid;
     }
-
-    grid.points.iter().flat_map(|row| row.iter()).filter(|p| {
-        match p {
-            GridPoint::Seat(occupied) => *occupied,
-            GridPoint::Floor => false
-        }
-    }).count()
+    
+    grid.occupied_seats()
 }
 
 pub fn day11_part2(path: &str) -> usize {
@@ -60,28 +52,14 @@ pub fn day11_part2(path: &str) -> usize {
         grid = next_grid;
     }
 
-    grid.points.iter().flat_map(|row| row.iter()).filter(|p| {
-        match p {
-            GridPoint::Seat(occupied) => *occupied,
-            GridPoint::Floor => false
-        }
-    }).count()
+    grid.occupied_seats()
 }
 
 fn read_grid(path: &str) -> Grid {
-    let mut points = Vec::<Vec::<GridPoint>>::new();
-
-    for line in read(path) {
-        let mut row = Vec::<GridPoint>::new();
-
-        for c in line.chars() {
-            row.push(GridPoint::from_char(c));
-        }
-        points.push(row);
-    }
-
     Grid {
-        points: points
+        points: read(path)
+            .map(|l| l.chars().map(|c| GridPoint::from_char(c)).collect())
+            .collect()
     }
 }
 
@@ -109,11 +87,6 @@ struct Grid {
 }
 
 impl Grid {
-    fn copy(&self) -> Grid {
-        Grid {
-            points: self.points.clone(),
-        }
-    }
 
     fn get_width(&self) -> usize {
         self.points[0].len()
@@ -228,5 +201,14 @@ impl Grid {
         let length = self.points.len() as i32;
 
         !(i < 0 || i >= length || j < 0 || j >= width)
+    }
+
+    fn occupied_seats(&self) -> usize {
+        self.points.iter().flat_map(|row| row.iter()).filter(|p| {
+            match p {
+                GridPoint::Seat(occupied) => *occupied,
+                GridPoint::Floor => false
+            }
+        }).count()
     }
 }
