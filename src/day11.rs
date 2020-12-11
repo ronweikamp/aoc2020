@@ -14,6 +14,14 @@ mod tests {
     fn test_day11_part1() {
         assert_eq!(day11_part1("data/day11/input"), 2324);
     }
+    #[test]
+    fn test_day11_part2_example() {
+        assert_eq!(day11_part2("data/day11/example1"), 26);
+    }
+    #[test]
+    fn test_day11_part2() {
+        assert_eq!(day11_part2("data/day11/input"), 2068);
+    }
 
 }
 
@@ -21,17 +29,30 @@ pub fn day11_part1(path: &str) -> usize {
 
     let mut grid = read_grid(path);
 
-    //println!("{:?}", grid);
-    //println!("{:?}", grid == grid);
-    //println!("{:?}", grid == grid.next());
-    //println!("{:?}", grid.next().next().next().next().next().next());
-    //println!("{:?}", grid.next().next().next().next().next().next() == grid.next().next().next().next().next().next().next());
-    //println!("{:?}", grid.next().next().next().next().next().next().next());
-    //println!("{:?}", grid.next());
-    //println!("{:?}", grid.next().next());
+    loop {
+
+        let next_grid = grid.next_1(|g, i, j| g.get_occupied_neighbours(i, j), 4);
+        if grid == next_grid {
+            break;
+        }
+
+        grid = next_grid;
+    }
+
+    grid.points.iter().flat_map(|row| row.iter()).filter(|p| {
+        match p {
+            GridPoint::Seat(occupied) => *occupied,
+            GridPoint::Floor => false
+        }
+    }).count()
+}
+
+pub fn day11_part2(path: &str) -> usize {
+
+    let mut grid = read_grid(path);
 
     loop {
-        let next_grid = grid.next();
+        let next_grid = grid.next_1(|g, i, j| g.get_occupied_neighbours2(i, j), 5);
         if grid == next_grid {
             break;
         }
@@ -81,7 +102,6 @@ impl GridPoint {
     }
 }
 
-//type Grid = Vec<Vec<GridPoint>>;
 
 #[derive(Debug, Eq, PartialEq, Hash)]
 struct Grid {
@@ -103,7 +123,7 @@ impl Grid {
         self.points.len()
     }
 
-    fn next(&self) -> Grid {
+    fn next_1(&self, occupied_neighbours_f: fn(&Grid, usize, usize) -> usize, tolerance: usize) -> Grid {
         let mut new_points = Vec::<Vec::<GridPoint>>::new();
 
         let width = self.get_width();
@@ -114,12 +134,11 @@ impl Grid {
             for j in 0..width {
                 let point = &self.points[i][j];
 
-                //println!("({}, {}) on {} ", i, j, self.get_occupied_neighbours(i, j));
 
                 let new_point = match point {
                     GridPoint::Seat(occupied) => {
-                        let on = self.get_occupied_neighbours(i, j);
-                        if *occupied && on >= 4 {
+                        let on = occupied_neighbours_f(self, i, j);
+                        if *occupied && on >= tolerance {
                             GridPoint::Seat(false)
                         } else if *occupied {
                             GridPoint::Seat(true)
@@ -143,6 +162,7 @@ impl Grid {
         Grid {
             points: new_points,
         }
+
     }
 
     fn get_occupied_neighbours(&self, i: usize, j: usize) -> usize {
@@ -154,11 +174,32 @@ impl Grid {
     }
 
     fn get_occupied_neighbours2(&self, i: usize, j: usize) -> usize {
-        self.get_neighbours(i, j).iter()
-            .filter(|n| match n {
-                GridPoint::Seat(occupied) => *occupied,
-                _ => false,
-            }).count()
+
+        let directions = [(1,0), (-1,0), (0,-1), (0,1), (1,1), (1,-1), (-1,-1), (-1,1)];
+
+        directions.iter().map(|d| self.neighbours_in_sight(i, j, *d)).sum()
+    }
+
+    fn neighbours_in_sight(&self, i: usize, j: usize, direction: (i32, i32)) -> usize {
+
+        let mut new_coord = (i as i32 + direction.0, j as i32 + direction.1);
+
+        loop {
+            if self.coord_in_grid(new_coord.0, new_coord.1) {
+
+
+                match self.points[new_coord.0 as usize][new_coord.1 as usize] { 
+                    GridPoint::Seat(true) => {return 1;},
+                    GridPoint::Seat(false) => {return 0;},
+                    _ => {} //noop
+                } 
+                
+            } else {
+                return 0;
+            }
+
+            new_coord = (new_coord.0 as i32 + direction.0, new_coord.1 as i32 + direction.1);
+        }
     }
 
 
@@ -187,9 +228,5 @@ impl Grid {
         let length = self.points.len() as i32;
 
         !(i < 0 || i >= length || j < 0 || j >= width)
-    }
-
-    fn count_occupied(&self) -> usize {
-        self.points.iter().flat_map(|row| row.iter()).count()
     }
 }

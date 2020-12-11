@@ -1,3 +1,5 @@
+use crate::day11::day11_part2;
+
 pub mod day1;
 mod day2;
 pub mod day3;
@@ -13,4 +15,5 @@ pub mod day11;
 
 fn main() {
     println!("Hello, world!");
+    day11_part2("data/day11/example1");
 }
