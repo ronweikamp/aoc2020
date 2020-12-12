@@ -8,13 +8,25 @@ mod tests {
     fn test_day12_part1_example() {
         assert_eq!(day12_part1("data/day12/example1"), 25);
     }
+    
+    #[test]
+    fn test_day12_part2_example() {
+        assert_eq!(day12_part2("data/day12/example1"), 286);
+    }
+    #[test]
+    fn test_day12_part2_example2() {
+        assert_eq!(day12_part2("data/day12/example2"), 10);
+    }
 
     #[test]
     fn test_day12_part1() {
         assert_eq!(day12_part1("data/day12/input"), 1294);
     }
-
-
+    
+    #[test]
+    fn test_day12_part2() {
+        assert_eq!(day12_part2("data/day12/input"), 20592);
+    }
 }
 
 pub fn day12_part1(path: &str) -> i32 {
@@ -33,11 +45,33 @@ pub fn day12_part1(path: &str) -> i32 {
     ship.coordinate.0.abs() + ship.coordinate.1.abs()
 }
 
+pub fn day12_part2(path: &str) -> i32 {
+
+    let actions = read_actions(path);
+    let mut ship = Ship2 {
+        waypoint: Waypoint {
+            y: (Orientation::N, 1),
+            x: (Orientation::E, 10)
+        },
+        coordinate: (0,0)
+    };
+
+    for a in actions {
+        println!("{:?}", a);
+        ship = ship.action(a);
+
+        println!("{:?}", ship);
+    }
+    
+    //println!("{:?}", ship);
+    ship.coordinate.0.abs() + ship.coordinate.1.abs()
+}
+
 fn read_actions(path: &str) -> Vec<Action> {
     read(path).map(|l| Action::from_line(&l)).collect() 
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 enum Action {
     N(i32),
     S(i32),
@@ -102,11 +136,22 @@ impl Orientation {
 
         match a {
             Action::L(degrees) => {
-                let steps = (degrees % 360) / 90 as i32;
+                let steps = match degrees {
+                    90 => 1,
+                    180 => 2,
+                    270 => 3,
+                    _ => unreachable!()
+                };
+                
                 self.from_number(-steps)
             }
             Action::R(degrees) => {
-                let steps = (degrees % 360) / 90 as i32;
+                let steps = match degrees {
+                    90 => 1,
+                    180 => 2,
+                    270 => 3,
+                    _ => unreachable!()
+                };
                 self.from_number(steps)
             }
             _ => unreachable!()
@@ -118,6 +163,113 @@ impl Orientation {
 struct Ship {
     orientation: Orientation,
     coordinate: (i32, i32),
+}
+
+#[derive(Debug, Clone, Copy)]
+struct Waypoint {
+    y: (Orientation, i32),
+    x: (Orientation, i32)
+}
+
+impl Waypoint {
+
+    fn do_action(&self, action: Action) -> Waypoint {
+        match action {
+            Action::N(value) => Waypoint {
+                y: (self.y.0, match self.y.0 {
+                    Orientation::N => self.y.1 + value,
+                    _ => self.y.1 - value
+                }),
+                x: self.x
+            },
+            Action::E(value) => Waypoint {
+                y: self.y,
+                x: (self.x.0, match self.x.0 {
+                    Orientation::E => self.x.1 + value,
+                    Orientation::W => self.x.1 - value,
+                    _ => unreachable!()
+                }),
+            },
+            Action::S(value) => Waypoint {
+                y: (self.y.0, match self.y.0 {
+                    Orientation::N => self.y.1 - value,
+                    _ => self.y.1 + value
+                }),
+                x: self.x
+            },
+            Action::W(value) => Waypoint {
+                y: self.y,
+                x: (self.x.0, match self.x.0 {
+                    Orientation::E => self.x.1 - value,
+                    Orientation::W => self.x.1 + value,
+                    _ => unreachable!()
+                }),
+            },
+            Action::L(_) | Action::R(_) => {
+                let ((y_or, y_n), (x_or, x_n)) = match self.y.0.from_degrees(action) {
+                    Orientation::N | Orientation::S => ((self.y.0.from_degrees(action), self.y.1), (self.x.0.from_degrees(action), self.x.1)),
+                    _ => ((self.x.0.from_degrees(action), self.x.1), (self.y.0.from_degrees(action), self.y.1))
+                };
+                
+                Waypoint {
+                    y: (y_or, y_n),
+                    x: (x_or, x_n)
+                }
+            },
+            Action::F(_) => unreachable!()
+        }
+    }
+
+    fn action(&self, action: Action) -> Waypoint {
+        let new_waypoint = self.do_action(action);
+        
+        // flip orientation
+        if new_waypoint.y.1 < 0 {
+            match new_waypoint.y.0 {
+                Orientation::N => Waypoint {
+                    y: (Orientation::S, -new_waypoint.y.1),
+                    x: new_waypoint.x
+                },
+                Orientation::S => Waypoint {
+                    y: (Orientation::N, -new_waypoint.y.1),
+                    x: new_waypoint.x
+                },
+                _ => unreachable!()
+            }
+        } else if new_waypoint.x.1 < 0 {
+            match new_waypoint.x.0 {
+                Orientation::E => Waypoint {
+                    y: new_waypoint.y,
+                    x: (Orientation::W, -new_waypoint.x.1)
+                },
+                Orientation::W => Waypoint {
+                    y: new_waypoint.y,
+                    x: (Orientation::E, -new_waypoint.x.1)
+                },
+                _ => unreachable!()
+            }
+        } else {
+            new_waypoint
+        }
+    }
+
+
+    fn x_direction(&self) -> i32 {
+        match self.x.0 {
+            Orientation::E => self.x.1,
+            Orientation::W => -self.x.1,
+            _ => 0
+        }
+    }
+
+    fn y_direction(&self) -> i32 {
+        match self.y.0 {
+            Orientation::N => self.y.1,
+            Orientation::S => -self.y.1,
+            _ => 0
+        }
+    }
+
 }
 
 impl Ship {
@@ -151,6 +303,31 @@ impl Ship {
                     Orientation::S => (self.coordinate.0 - steps, self.coordinate.1),
                     Orientation::W => (self.coordinate.0, self.coordinate.1 - steps)
                 }
+            }
+            
+        }
+    }
+}
+
+#[derive(Debug)]
+struct Ship2 {
+    waypoint: Waypoint,
+    coordinate: (i32, i32)
+}
+
+impl Ship2 {
+
+    fn action(&self, action: Action) -> Ship2 {
+
+        match action {
+            Action::N(_) | Action::E(_) | Action::S(_) | Action::W(_) | Action::L(_) | Action::R(_) => Ship2 {
+                waypoint: self.waypoint.action(action),
+                coordinate: self.coordinate
+            },
+            Action::F(steps) => Ship2 {
+                waypoint: self.waypoint,
+                coordinate: (self.coordinate.0 + steps * self.waypoint.y_direction(), 
+                    self.coordinate.1 + steps * self.waypoint.x_direction())
             }
             
         }
